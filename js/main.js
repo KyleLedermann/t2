@@ -1,91 +1,109 @@
-var app = {
+var dbShell;
 
-    showAlert: function (message, title) {
-        if (navigator.notification) {
-            navigator.notification.alert(message, null, title, 'OK');
-        } else {
-            alert(title ? (title + ": " + message) : message);
-        }
-    },
+function doLog(s){
+    /*
+    setTimeout(function(){
+        console.log(s);
+    }, 3000);
+    */
+}
 
-    registerEvents: function() {
-        $(window).on('hashchange', $.proxy(this.route, this));
-        $('body').on('mousedown', 'a', function(event) {
-            $(event.target).addClass('tappable-active');
-        });
-        $('body').on('mouseup', 'a', function(event) {
-            $(event.target).removeClass('tappable-active');
-        });
-    },
+function dbErrorHandler(err){
+    alert("DB Error: "+err.message + "\nCode="+err.code);
+}
 
-    route: function() {
-        var self = this;
-        var hash = window.location.hash;
-        if (!hash) {
-            if (this.homePage) {
-                this.slidePage(this.homePage);
-            } else {
-                this.homePage = new HomeView(this.store).render();
-                this.slidePage(this.homePage);
-            }
-            return;
-        }
-        var match = hash.match(this.detailsURL);
-        if (match) {
-            this.store.findById(Number(match[1]), function(employee) {
-                self.slidePage(new EmployeeView(employee).render());
-            });
-        }
-    },
+function phoneReady(){
+    doLog("phoneReady");
+    //First, open our db
+    
+    dbShell = window.openDatabase("SimpleNotes", 2, "SimpleNotes", 1000000);
+    doLog("db was opened");
+    //run transaction to create initial tables
+    dbShell.transaction(setupTable,dbErrorHandler,getEntries);
+    doLog("ran setup");
+}
 
-    slidePage: function(page) {
+//I just create our initial table - all one of em
+function setupTable(tx){
+    doLog("before execute sql...");
+    tx.executeSql("CREATE TABLE IF NOT EXISTS notes(id INTEGER PRIMARY KEY,title,body,updated)");
+    doLog("after execute sql...");
+}   
 
-        var currentPageDest,
-            self = this;
+//I handle getting entries from the db
+function getEntries() {
+    
+    //doLog("get entries");
+    dbShell.transaction(function(tx) {
+        tx.executeSql("select id, title, body, updated from notes order by updated desc",[],renderEntries,dbErrorHandler);
+    }, dbErrorHandler);
+}
 
-        // If there is no current page (app just started) -> No transition: Position new page in the view port
-        if (!this.currentPage) {
-            $(page.el).attr('class', 'page stage-center');
-            $('body').append(page.el);
-            this.currentPage = page;
-            return;
-        }
-
-        // Cleaning up: remove old pages that were moved out of the viewport
-        $('.stage-right, .stage-left').not('.homePage').remove();
-
-        if (page === app.homePage) {
-            // Always apply a Back transition (slide from left) when we go back to the search page
-            $(page.el).attr('class', 'page stage-left');
-            currentPageDest = "stage-right";
-        } else {
-            // Forward transition (slide from right)
-            $(page.el).attr('class', 'page stage-right');
-            currentPageDest = "stage-left";
-        }
-
-        $('body').append(page.el);
-
-        // Wait until the new page has been added to the DOM...
-        setTimeout(function() {
-            // Slide out the current page: If new page slides from the right -> slide current page to the left, and vice versa
-            $(self.currentPage.el).attr('class', 'page transition ' + currentPageDest);
-            // Slide in the new page
-            $(page.el).attr('class', 'page stage-center transition');
-            self.currentPage = page;
-        });
-
-    },
-
-    initialize: function() {
-        var self = this;
-        this.detailsURL = /^#employees\/(\d{1,})/;
-        this.registerEvents();
-        this.store = new MemoryStore(function() {
-            self.route();
-        });
+    
+function renderEntries(tx,results){
+    doLog("render entries");
+    if (results.rows.length == 0) {
+        $("#mainContent").html("<p>You currently do not have any notes.</p>");
+    } else {
+       var s = "";
+       for(var i=0; i<results.rows.length; i++) {
+         s += "<li><a href='edit.html?id="+results.rows.item(i).id + "'>" + results.rows.item(i).title + "</a></li>";   
+       }
+       $("#noteTitleList").html(s);
+       $("#noteTitleList").listview("refresh");
     }
+}
 
-};
+function saveNote(note, cb) {
+    //Sometimes you may want to jot down something quickly....
+    if(note.title == "") note.title = "[No Title]";
+    dbShell.transaction(function(tx) {
+        if(note.id == "") tx.executeSql("insert into notes(title,body,updated) values(?,?,?)",[note.title,note.body, new Date()]);
+        else tx.executeSql("update notes set title=?, body=?, updated=? where id=?",[note.title,note.body, new Date(), note.id]);
+    }, dbErrorHandler,cb);
+}
 
-app.initialize();
+function init(){
+    document.addEventListener("deviceready", phoneReady, false);
+    
+    //handle form submission of a new/old note
+    $("#editNoteForm").live("submit",function(e) {
+        var data = {title:$("#noteTitle").val(), 
+                    body:$("#noteBody").val(),
+                    id:$("#noteId").val()
+        };
+        saveNote(data,function() {
+            $.mobile.changePage("index.html",{reverse:true});
+        });
+        e.preventDefault();
+    });
+
+    //will run after initial show - handles regetting the list
+    $("#homePage").live("pageshow", function() {
+        getEntries(); 
+    });
+
+    //edit page logic needs to know to get old record (possible)
+    $("#editPage").live("pageshow", function() {
+        //get the location - it is a hash - got to be a better way
+        var loc = window.location.hash;
+        if(loc.indexOf("?") >= 0) {
+            var qs = loc.substr(loc.indexOf("?")+1,loc.length);
+            var noteId = qs.split("=")[1];
+            //load the values
+            $("#editFormSubmitButton").attr("disabled","disabled"); 
+            dbShell.transaction(
+                function(tx) {
+                    tx.executeSql("select id,title,body from notes where id=?",[noteId],function(tx,results) {
+                        $("#noteId").val(results.rows.item(0).id);
+                        $("#noteTitle").val(results.rows.item(0).title);
+                        $("#noteBody").val(results.rows.item(0).body);
+                        $("#editFormSubmitButton").removeAttr("disabled");   
+                    });
+                }, dbErrorHandler);
+            
+        } else {
+         $("#editFormSubmitButton").removeAttr("disabled");   
+        }
+    });
+}
