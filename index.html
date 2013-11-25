@@ -1,35 +1,95 @@
-<!DOCTYPE HTML>
+
+
+<!DOCTYPE html>
 <html>
 <head>
-<meta name="viewport" content="width=320; user-scalable=no" />
-<meta http-equiv="Content-type" content="text/html; charset=utf-8">
-<title>SimpleNote</title>
-<link href="css/jquery.mobile-1.0rc1.min.css" rel="stylesheet" type="text/css" />
-<!--<script src="http://debug.phonegap.com/target/target-script-min.js#raymondcamden"></script>-->
-<script type="text/javascript" charset="utf-8" src="js/phonegap-1.1.0.js"></script>
-<script src="js/jquery-1.6.4.js"></script>
-<script src="js/jquery.mobile-1.0rc1.min.js"></script>
-<script src="js/main.js"></script>
+<meta name="viewport" content="user-scalable=no,
+initial-scale=1, maximum-scale=1,
+minimum-scale=1, width=device-width;" />
+<title>My ToDo List</title>
+
+<script type="text/javascript"
+src="cordova-2.9.0.js"></script>
+<script type="text/javascript"
+src="xui-2.3.2.js"></script>
+<script type="text/javascript">
+x$(document).on("deviceready", function () {
+});
+
+var listElement = x$('#listItems');
+var messageElement = x$('#message');
+var db;
+x$('#saveItem').on('click', function(e) {
+insertItem();
+});
+// Create a reference to the database
+function getDatabase() {
+return window.openDatabase("todoListDB",
+"1.0", "ToDoList Database", 200000);
+}
+
+// Run the onDeviceReady method
+onDeviceReady();
+// PhoneGap is ready
+function onDeviceReady() {
+db = getDatabase();
+db.transaction(function(tx) {
+tx.executeSql('CREATE TABLE IF NOT EXISTS MYLIST
+(id INTEGER PRIMARY KEY AUTOINCREMENT, list_action)');
+}, databaseError, getItems);
+}
+
+// Run a select statement to pull out all records
+function getItems() {
+db.transaction(function(tx) {
+tx.executeSql('SELECT * FROM MYLIST', [],
+querySuccess, databaseError);
+}, databaseError);
+}
+
+// Process the SQLResultSetList
+function querySuccess(tx, results) {
+var len = results.rows.length;
+var output = '';
+for (var i=0; i<len; i++){
+output = output +
+'<li id="' + results.rows.item(i).id + '">' +
+results.rows.item(i).list_action + '</li>';
+}
+messageElement.html('<p>There are ' + len +
+' items in your list:</p>');
+listElement.html('<ul>' + output + '</ul>');
+}
+
+// Insert a record into the database
+function insertItem() {
+var insertValue =
+document.getElementById('list_action').value;
+db.transaction(function(tx) {
+tx.executeSql('INSERT INTO MYLIST
+(list_action) VALUES ("' + insertValue + '")');
+}, databaseError, getItems);
+// Clear the value from the input box
+document.getElementById('list_action').value = '';
+}
+
+// Database error handler
+function databaseError(error) {
+messageElement.html("SQL Error: " + error.code);
+}
+
+</script>
 </head>
+<body>
+<h1>My ToDo List</h1>
 
-<body onload="init();">
-
-
-<div data-role="page" id="homePage">
-
-	<div data-role="header">
-		<h1>SimpleNotes</h1>
-	</div>
-
-	<div data-role="content" id="mainContent">	
-		<ul data-role="listview" id="noteTitleList"></ul>
-	</div>
-
-	<div data-role="footer" class="ui-bar">
-		<a href="edit.html" data-role="button" data-icon="plus">Add Note</a>
-	</div>
-
-</div>
+<input type="text" id="list_action" />
+<input type="button" id="saveItem" value="Save" />
+<div id="message"></div>
+<div id="listItems"></div>
 
 </body>
 </html>
+
+
+
