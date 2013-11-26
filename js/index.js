@@ -98,15 +98,11 @@ $(document).on("pageload", "#entryPage", function(e) {
 
 $(document).on("pageload", "#addPage", function(e) {
 
-	/*function onSuccess(imgdata) {
-		console.log(imgdata);
-		$("#entryPicture").val(imgdata);
-		$("#imgPreview").attr("src", imgdata);
-	}*/
-	function cameraCallback(imageData) {
-    var image = document.getElementById('myImage');
-    image.src = "data:image/jpeg;base64," + imageData;
-}
+	function onSuccess(imagedata) {
+		console.log(imagedata);
+		$("#entryPicture").val(imagedata);
+		$("#imgPreview").attr("src", imagedata);
+	}
 	
 	function onFail(e) {
 		console.log('camFail');console.dir(e);
@@ -116,15 +112,7 @@ $(document).on("pageload", "#addPage", function(e) {
 	$("#takePicture").on("touchstart", function(e) {
 		e.preventDefault();
 		
-		navigator.camera.getPicture(onSuccess, onFail, {quality : 75,
-  destinationType : Camera.DestinationType.DATA_URL,
-  sourceType : Camera.PictureSourceType.CAMERA,
-  allowEdit : true,
-  encodingType: Camera.EncodingType.JPEG,
-  targetWidth: 100,
-  targetHeight: 100,
-  popoverOptions: CameraPopoverOptions,
-  saveToPhotoAlbum: false };
+		navigator.camera.getPicture(onSuccess, onFail, {quality:50, destinationType:Camera.DestinationType.FILE_URI});
 	});
 	
 	$("#addEntrySubmit").on("touchstart", function(e) {
