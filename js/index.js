@@ -98,7 +98,7 @@ $(document).on("pageload", "#entryPage", function(e) {
 
 $(document).on("pageload", "#addPage", function(e) {
 
-	f/*unction onSuccess(imgdata) {
+	/*function onSuccess(imgdata) {
 		console.log(imgdata);
 		$("#entryPicture").val(imgdata);
 		$("#imgPreview").attr("src", imgdata);
