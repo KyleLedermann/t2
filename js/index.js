@@ -1,5 +1,6 @@
 var diary;
 var mainView;
+var destinationType;
 
 document.addEventListener('deviceready', deviceready, false);
 
