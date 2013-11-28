@@ -31,14 +31,35 @@
     </head>
     <body>
   <div data-role="page" data-theme='b'>
-
+  <!--
+<div data-nativedroid-plugin="splashscreen" data-nativedroid-splashscreen-time="4" data-nativedroid-splashscreen-animation="fadeOut" data-nativedroid-background="http://nativedroid.godesign.ch/res/img/splashscreenbg.png">
+				<div class='splashScreenExample'>
+					<h1>Welcome</h1>
+					<h2>to</h2>
+					<h3>Memoments</h3>
+					<div class='splashScreenDroid'></div>
+				</div>	
+-->				
+			
 
         <div data-role="header" data-position="fixed" data-tap-toggle="false" data-theme='b'>
-            <a href="index.html" data-ajax="false"><i class='icon-ellipsis-vertical'></i></a>
+            <a href="index.html" data-ajax="false"><i class='icon-ellipsis-vertical'></i><i class="fa fa-shield"></i></a>
             <h1>HOME</h1>
         </div>
         <div id="mainView">
         </div>
+		<div data-position="fixed" data-tap-toggle="false" data-role="footer" data-tap-toggle="false" data-theme='b'>
+			<div data-role="navbar">
+			
+				<ul>
+					<li><a href="#" data-icon="cogs">Help</a></li>
+					<li><a href="#" data-icon="map-marker"><i class="fa fa-shield"></i>Terms & Conditions</a></li>
+					<li><a href="#" data-icon="info">Credits</a></li>
+					<li><a href="#" data-icon="share-alt">Copyright 2013</a></li>
+				</ul>
+			</div>
         </div>
+			
+		</div>
     </body>
 </html>
