@@ -47,6 +47,73 @@
             <h1>HOME</h1>
         </div>
         <div id="mainView" data-role="content" data-theme='b'>
+		
+<div id="addPage">
+
+<h2>Write an Entry</h2>
+ 
+
+			 
+
+			    
+            <form>
+                <ul data-role="listview" data-inset="true">
+        
+ <li data-role="fieldcontain">
+                        <label for="entryTitle">Title:</label>
+                        <input type="text" id="entryTitle" value="" data-clear-btn="true" placeholder="Memoment Title">
+                    </li>
+					
+					    <li data-role="fieldcontain">
+                        <label for="entryBody">Notes:</label>
+                    <textarea cols="40" rows="8" name="textarea2" id="entryBody" placeholder="Enter your thoughts"></textarea>
+                    </li>
+<li data-role="fieldcontain">
+                        <label for="slider2b">Mood Range:</label>
+                        <input type="range" name="slider2" id="slider2b" value="0" min="0" max="100" data-highlight="true">
+                    </li>
+					   <li data-role="fieldcontain">
+                        <fieldset data-role="controlgroup">
+                            <legend>Checkboxes</legend>
+                            <input type="checkbox" name="checkbox-1a" id="checkbox-1ab" checked="">
+                            <label for="checkbox-1ab">At Work</label>
+                            <input type="checkbox" name="checkbox-2a" id="checkbox-2ab">
+                            <label for="checkbox-2ab">With Friends</label>
+                            <input type="checkbox" name="checkbox-3a" id="checkbox-3ab">
+                            <label for="checkbox-3ab">At School</label>
+                            <input type="checkbox" name="checkbox-4a" id="checkbox-4ab">
+                            <label for="checkbox-4ab">At Club</label>
+                        </fieldset>
+                    </li>
+					  <li data-role="fieldcontain">
+                        <label for="flip2b">Inside or Outside:</label>
+                        <i class="fa fa-sun-o"></i> fa-sun-o<select name="flip2" id="flip2b" data-role="slider">
+                            <option value="off">Indoors</option>
+                            <option value="on">Outdoors</option>
+                        </select><i class="fa fa-umbrella"></i> fa-umbrella
+                    </li><li data-role="fieldcontain">
+                       	<i class="fa fa-tag"></i> fa-tag <label for="tags">Tag:</label>
+                        <input type="text" id="tags" value="" data-clear-btn="true" placeholder="Friends etc.">
+                    </li>
+				
+					
+</ul>
+</form>
+
+<input id="entryPicture"><p><i class="fa fa-camera"></i> fa-camera fa-5x</p>
+<button type="submit" id="takePicture" data-theme="b">Add Picture</button>
+</div>
+<div class="ui-block-b">
+<button type="submit" id="addEntrySubmit" data-theme="b">Save</button>
+</div>
+
+
+    </fieldset>
+
+
+
+
+
         </div>
 		<div data-position="fixed" data-tap-toggle="false" data-role="footer" data-tap-toggle="false" data-theme='b'>
 			<div data-role="navbar">
