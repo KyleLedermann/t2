@@ -98,15 +98,11 @@ $(document).on("pageload", "#entryPage", function(e) {
 
 $(document).on("pageload", "#addPage", function(e) {
 
-	/*function onSuccess(imagedata) {
+	function onSuccess(imagedata) {
 		console.log(imagedata);
 		$("#entryPicture").val(imagedata);
 		$("#imgPreview").attr("src", imagedata);
-	}*/
-	function cameraCallback(imageData) {
-    var image = document.getElementById('myImage');
-    image.src = "data:image/jpeg;base64," + imageData;
-}
+	}
 	
 	function onFail(e) {
 		console.log('camFail');console.dir(e);
